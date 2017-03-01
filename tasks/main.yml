@@ -1,0 +1,50 @@
+---
+- name: Rol del repo de epel para CentOS
+  become: yes
+  include_role:
+    name: repo-epel
+  when: ansible_distribution == 'CentOS'
+
+- name: Instalar paquetes
+  become: yes
+  package: name={{ item }} state=latest
+  with_items:
+    - htop
+    - git
+    - vim
+
+- name: Config VIM
+  git: repo=https://github.com/rubencabrera/vim.git
+       dest=/home/{{ ansible_user }}/vim
+
+- name: Vundle for vim
+  git: repo=https://github.com/gmarik/vundle.git
+       dest=/home/{{ ansible_user }}/vim/.vim/Vundle.vim
+
+- name: Set up vimrc
+  file:
+    src: /home/{{ ansible_user }}/vim/.vim/.vimrc
+    dest: /home/{{ ansible_user }}/.vimrc
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: link
+
+- name: Clear .vim default direcotry
+  stat:
+    path: /home/{{ ansible_user }}/.vim
+  register: sym
+
+- name: Removing .vim default folder
+  file:
+    path: /home/{{ ansible_user }}/.vim
+    state: absent
+  when: sym.stat.islnk is defined and sym.stat.islnk == False
+
+- name: Set up vim folder
+  file:
+    force: yes
+    src: /home/{{ ansible_user }}/vim/.vim
+    dest: /home/{{ ansible_user }}/.vim
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: link
