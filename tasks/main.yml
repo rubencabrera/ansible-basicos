@@ -5,6 +5,11 @@
     name: repo-epel
   when: ansible_distribution == 'CentOS'
 
+- name: Update packages first
+  become: yes
+  apt:
+    update_cache: yes
+
 - name: Instalar paquetes
   become: yes
   package: name={{ item }} state=latest
