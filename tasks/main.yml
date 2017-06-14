@@ -7,8 +7,14 @@
 
 - name: Update packages first
   become: yes
+  become_method: su
   apt:
     update_cache: yes
+
+- name: Install sudo
+  become: yes
+  become_method: su
+  package: name=sudo state=present
 
 - name: Instalar paquetes
   become: yes
