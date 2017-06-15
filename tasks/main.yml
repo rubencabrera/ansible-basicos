@@ -27,7 +27,7 @@
   with_items:
     - htop
     - git
-    - vim
+    - vim-nox
 
 - name: Config VIM
   git: repo=https://github.com/rubencabrera/vim.git
