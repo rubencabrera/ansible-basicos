@@ -29,38 +29,42 @@
     - git
     - vim-nox
 
+#- name: Set home folder
+  #set_fact:
+    #ansible_home: ""
+
 - name: Config VIM
   git: repo=https://github.com/rubencabrera/vim.git
-       dest=/home/{{ ansible_user }}/vim
+       dest="{{ ansible_env.HOME }}/vim"
 
 - name: Vundle for vim
   git: repo=https://github.com/gmarik/vundle.git
-       dest=/home/{{ ansible_user }}/vim/.vim/Vundle.vim
+       dest="{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
 
 - name: Set up vimrc
   file:
-    src: /home/{{ ansible_user }}/vim/.vim/.vimrc
-    dest: /home/{{ ansible_user }}/.vimrc
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    src: "{{ ansible_env.HOME }}/vim/.vim/.vimrc"
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
     state: link
 
 - name: Clear .vim default direcotry
   stat:
-    path: /home/{{ ansible_user }}/.vim
+    path: "{{ ansible_env.HOME }}/.vim"
   register: sym
 
 - name: Removing .vim default folder
   file:
-    path: /home/{{ ansible_user }}/.vim
+    path: "{{ ansible_env.HOME }}/.vim"
     state: absent
   when: sym.stat.islnk is defined and sym.stat.islnk == False
 
 - name: Set up vim folder
   file:
     force: yes
-    src: /home/{{ ansible_user }}/vim/.vim
-    dest: /home/{{ ansible_user }}/.vim
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    src: "{{ ansible_env.HOME }}/vim/.vim"
+    dest: "{{ ansible_env.HOME }}/.vim"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
     state: link
