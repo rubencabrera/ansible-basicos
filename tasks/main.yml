@@ -16,6 +16,11 @@
   become_method: su
   package: name=sudo state=present
 
+# Workaround from issue #492 on ansible-container
+- name: Install libssl
+  raw: apt-get install -y libssl-dev
+  when: ansible_distribution == 'Ubuntu'
+
 - name: Instalar paquetes
   become: yes
   package: name={{ item }} state=latest
