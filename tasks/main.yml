@@ -28,6 +28,8 @@
     - htop
     - git
     - vim-nox
+    - speedometer
+    - tree
 
 #- name: Set home folder
   #set_fact:
