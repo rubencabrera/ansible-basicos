@@ -30,18 +30,23 @@
     - vim-nox
     - speedometer
     - tree
+    - silversearcher-ag
 
 #- name: Set home folder
   #set_fact:
     #ansible_home: ""
 
 - name: Config VIM
-  git: repo=https://github.com/rubencabrera/vim.git
-       dest="{{ ansible_env.HOME }}/vim"
+  git: 
+    repo: "https://github.com/rubencabrera/vim.git"
+    dest: "{{ ansible_env.HOME }}/vim"
+    force: yes
 
 - name: Vundle for vim
-  git: repo=https://github.com/gmarik/vundle.git
-       dest="{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
+  git: 
+    repo: "https://github.com/gmarik/vundle.git"
+    dest: "{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
+    force: yes
 
 - name: Set up vimrc
   file:
