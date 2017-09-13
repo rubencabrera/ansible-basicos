@@ -18,6 +18,7 @@
 
 # Workaround from issue #492 on ansible-container
 - name: Install libssl
+  become: yes
   raw: apt-get install -y libssl-dev
   when: ansible_distribution == 'Ubuntu'
 
