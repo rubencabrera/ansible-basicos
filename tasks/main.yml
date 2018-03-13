@@ -20,6 +20,12 @@
   raw: apt-get install -y libssl-dev
   when: ansible_distribution == 'Ubuntu'
 
+- name: Add seafile repo
+  apt_repository:
+    repo: 'ppa:seafile/seafile-client'
+    codename: "{{ 'xenial' if ansible_lsb.codename == 'sylvia' or ansible_lsb.codename == 'sonya' else ansible_lsb.codename }}"
+
+
 - name: Instalar paquetes
   become: yes
   package: name={{ item }} state=latest
@@ -32,7 +38,9 @@
     - silversearcher-ag
     - psensor
     - python-pip
+    - keepass2
     - python-setuptools
+    - seafile-gui
     
 
 #- name: Set home folder
@@ -77,7 +85,7 @@
 
 - name: Add Docker repository and update apt cache
   apt_repository:
-    repo: "{{ apt_repository }}"
+    repo: "{{ docker_apt_repository }}"
     mode: '644'
     update_cache: yes
     state: present
@@ -106,3 +114,6 @@
     force: yes
 
 # TODO: ejecutar instalar.py e interactuar con la contraseña necesaria.
+#
+
+ 
