@@ -7,13 +7,11 @@
 
 - name: Update packages first
   become: yes
-  #become_method: su
   apt:
     update_cache: yes
 
 - name: Install sudo
   become: yes
-  #become_method: su
   package: name=sudo state=present
 
 # Workaround from issue #492 on ansible-container
@@ -32,47 +30,79 @@
     - speedometer
     - tree
     - silversearcher-ag
+    - psensor
+    - python-pip
+    - python-setuptools
+    
 
 #- name: Set home folder
   #set_fact:
     #ansible_home: ""
 
+# Docker CE setup:
+##################
+
+- name : Asegurar que usamos la api nueva de docker
+  become: True
+  pip: 
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker-py
+
+- name : Dependencias del módulo ansible_container
+  become: True
+  pip: 
+    name: "{{ item }}"
+  with_items:
+    - docker
+
+- name: HTTPS APT transport for Docker repository
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: 
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+- name: Add Docker repository key
+  apt_key:
+    id: "{{ apt_key_sig }}"
+    keyserver: "{{ apt_key_url }}"
+    state: present
+  register: add_repository_key
+  ignore_errors: true
+
+- name: Add Docker repository and update apt cache
+  apt_repository:
+    repo: "{{ apt_repository }}"
+    mode: '644'
+    update_cache: yes
+    state: present
+
+- name: Install (or update) docker package
+  apt:
+    name: "{{ docker_pkg_name }}"
+    state: "{{ 'latest' if update_docker_package else 'present' }}"
+    update_cache: "{{ update_docker_package }}"
+    cache_valid_time: "{{ docker_apt_cache_valid_time }}"
+
+- name: Instalar docker.
+  become: True
+  apt: 
+    pkg: docker-ce
+    state: present
+
+# End of Docker CE setup
+########################
+
+# These vim tasks can be avoided if using the installer in my own repo
 - name: Config VIM
   git: 
     repo: "https://github.com/rubencabrera/vim.git"
     dest: "{{ ansible_env.HOME }}/vim"
     force: yes
 
-- name: Vundle for vim
-  git: 
-    repo: "https://github.com/gmarik/vundle.git"
-    dest: "{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
-    force: yes
-
-- name: Set up vimrc
-  file:
-    src: "{{ ansible_env.HOME }}/vim/.vim/.vimrc"
-    dest: "{{ ansible_env.HOME }}/.vimrc"
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
-    state: link
-
-- name: Clear .vim default direcotry
-  stat:
-    path: "{{ ansible_env.HOME }}/.vim"
-  register: sym
-
-- name: Removing .vim default folder
-  file:
-    path: "{{ ansible_env.HOME }}/.vim"
-    state: absent
-  when: sym.stat.islnk is defined and sym.stat.islnk == False
-
-- name: Set up vim folder
-  file:
-    force: yes
-    src: "{{ ansible_env.HOME }}/vim/.vim"
-    dest: "{{ ansible_env.HOME }}/.vim"
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
-    state: link
+# TODO: ejecutar instalar.py e interactuar con la contraseña necesaria.

@@ -1,0 +1,9 @@
+# assume that the desired version is community edition
+docker_edition: ce
+apt_key_url: "hkp://ha.pool.sks-keyservers.net"
+apt_key_sig: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+# dirty hack condition for mint:
+apt_repository: "{{ 'deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release|lower }} stable' if 'Mint' not in ansible_distribution else 'deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable' }}"
+docker_pkg_name: "{{ 'docker-ee' if docker_edition == 'ee' else 'docker-ce' }}"
+update_docker_package: yes
+docker_apt_cache_valid_time: 600
