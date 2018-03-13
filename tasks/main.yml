@@ -25,6 +25,20 @@
     repo: 'ppa:seafile/seafile-client'
     codename: "{{ 'xenial' if ansible_lsb.codename == 'sylvia' or ansible_lsb.codename == 'sonya' else ansible_lsb.codename }}"
 
+- name: Add virtualbox oracle repo
+  apt_repository:
+    repo: "deb https://download.virtualbox.org/virtualbox/debian {{ 'xenial' if ansible_lsb.codename == 'sylvia' or ansible_lsb.codename == 'sonya' else ansible_lsb.codename  }} contrib"
+    update_cache: yes
+
+- name: Add the oracle apt key
+  apt_key:
+    url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+    state: present
+
+- name: Add the oracle apt second key
+  apt_key:
+    url: https://www.virtualbox.org/download/oracle_vbox.asc
+    state: present
 
 - name: Instalar paquetes
   become: yes
@@ -41,7 +55,8 @@
     - keepass2
     - python-setuptools
     - seafile-gui
-    
+    - terminator
+    - virtualbox-5.2
 
 #- name: Set home folder
   #set_fact:
@@ -116,4 +131,8 @@
 # TODO: ejecutar instalar.py e interactuar con la contraseña necesaria.
 #
 
+- name: Instalar vagrant
+  apt:
+    state: present
+    deb: https://releases.hashicorp.com/vagrant/2.0.2/vagrant_2.0.2_x86_64.deb
  
