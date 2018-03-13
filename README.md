@@ -9,12 +9,9 @@ entorno gráfico, pero se sobreentiende que sí.
 
 ## Known issues / Roadmap:
 
-Rama desktop:
+### Rama desktop
 
 - ansible (si lo queremos en localhost, hay que hacer un script en bash)
 - ansible.cfg con `roles_path` y ruta `inventory`
-- pip
-- docker-ce
-- vagrant
 - kubernetes
 
