@@ -10,7 +10,7 @@ entorno gráfico, pero se sobreentiende que sí.
 
 ```yaml
 ---
-- hosts: all
+- hosts: desktop
   become: yes
   roles:
     - ansible-basicos
