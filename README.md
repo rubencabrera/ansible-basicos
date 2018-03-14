@@ -6,6 +6,16 @@ La rama master está dedicada a servidores sólo accesibles por ssh.
 La rama desktop va orientada a equipos de desarrollo. No necesariamente con
 entorno gráfico, pero se sobreentiende que sí. 
 
+## Ejemplo de playbook:
+
+```yaml
+---
+- hosts: all
+  become: yes
+  roles:
+    - ansible-basicos
+```
+
 
 ## Known issues / Roadmap:
 
