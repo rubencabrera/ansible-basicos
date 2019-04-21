@@ -13,8 +13,8 @@ def test_hosts_file(host):
     assert f.user == 'root'
     assert f.group == 'root'
 
+
 def test_nginx_is_installed(host):
     htop = host.package("htop")
     assert htop.is_installed
     assert htop.version.startswith("2")
-
