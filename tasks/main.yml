@@ -7,13 +7,11 @@
 
 - name: Update packages first
   become: yes
-  #become_method: su
   apt:
     update_cache: yes
 
 - name: Install sudo
   become: yes
-  #become_method: su
   package: name=sudo state=present
 
 # Workaround from issue #492 on ansible-container
@@ -33,18 +31,14 @@
     - tree
     - silversearcher-ag
 
-#- name: Set home folder
-  #set_fact:
-    #ansible_home: ""
-
 - name: Config VIM
-  git: 
+  git:
     repo: "https://github.com/rubencabrera/vim.git"
     dest: "{{ ansible_env.HOME }}/vim"
     force: yes
 
 - name: Vundle for vim
-  git: 
+  git:
     repo: "https://github.com/gmarik/vundle.git"
     dest: "{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
     force: yes
