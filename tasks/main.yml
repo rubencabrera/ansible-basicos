@@ -1,15 +1,8 @@
 ---
-- name: Rol del repo de epel para CentOS
-  become: yes
-  include_role:
-    name: geerlingguy.repo-epel
-  when: ansible_distribution == 'CentOS'
-
 - name: Update packages first
   become: yes
   apt:
     update_cache: yes
-  when: ansible_distribution in ["Ubuntu", "Debian"]
 
 - name: Install sudo
   become: yes

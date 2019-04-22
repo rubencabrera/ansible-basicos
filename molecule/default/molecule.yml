@@ -8,8 +8,6 @@ driver:
 lint:
   name: yamllint
 platforms:
-  - name: centos7
-    image: centos:7
   - name: ubuntuBionic
     image: ubuntu:18.04
   - name: ubuntuXenial
