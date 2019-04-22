@@ -1,30 +1,16 @@
 ---
-- name: Rol del repo de epel para CentOS
-  become: yes
-  include_role:
-    name: repo-epel
-  when: ansible_distribution == 'CentOS'
-
 - name: Update packages first
   become: yes
-  #become_method: su
   apt:
     update_cache: yes
 
 - name: Install sudo
   become: yes
-  #become_method: su
   package: name=sudo state=present
-
-# Workaround from issue #492 on ansible-container
-- name: Install libssl
-  become: yes
-  raw: apt-get install -y libssl-dev
-  when: ansible_distribution == 'Ubuntu'
 
 - name: Instalar paquetes
   become: yes
-  package: name={{ item }} state=latest
+  package: name={{ item }} state=present
   with_items:
     - htop
     - git
@@ -33,20 +19,18 @@
     - tree
     - silversearcher-ag
 
-#- name: Set home folder
-  #set_fact:
-    #ansible_home: ""
-
 - name: Config VIM
-  git: 
+  git:
     repo: "https://github.com/rubencabrera/vim.git"
     dest: "{{ ansible_env.HOME }}/vim"
+    version: master
     force: yes
 
 - name: Vundle for vim
-  git: 
+  git:
     repo: "https://github.com/gmarik/vundle.git"
     dest: "{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
+    version: master
     force: yes
 
 - name: Set up vimrc
@@ -66,7 +50,7 @@
   file:
     path: "{{ ansible_env.HOME }}/.vim"
     state: absent
-  when: sym.stat.islnk is defined and sym.stat.islnk == False
+  when: sym.stat.islnk is defined and not sym.stat.islnk
 
 - name: Set up vim folder
   file:
