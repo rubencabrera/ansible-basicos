@@ -22,7 +22,7 @@
 
 - name: Instalar paquetes
   become: yes
-  package: name={{ item }} state=latest
+  package: name={{ item }} state=present
   with_items:
     - htop
     - git
@@ -35,12 +35,14 @@
   git:
     repo: "https://github.com/rubencabrera/vim.git"
     dest: "{{ ansible_env.HOME }}/vim"
+    version: master
     force: yes
 
 - name: Vundle for vim
   git:
     repo: "https://github.com/gmarik/vundle.git"
     dest: "{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
+    version: master
     force: yes
 
 - name: Set up vimrc
@@ -60,7 +62,7 @@
   file:
     path: "{{ ansible_env.HOME }}/.vim"
     state: absent
-  when: sym.stat.islnk is defined and sym.stat.islnk == False
+  when: sym.stat.islnk is defined and not sym.stat.islnk
 
 - name: Set up vim folder
   file:
