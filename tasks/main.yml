@@ -2,7 +2,7 @@
 - name: Rol del repo de epel para CentOS
   become: yes
   include_role:
-    name: repo-epel
+    name: geerlingguy.repo-epel
   when: ansible_distribution == 'CentOS'
 
 - name: Update packages first
