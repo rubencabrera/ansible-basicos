@@ -9,6 +9,7 @@
   become: yes
   apt:
     update_cache: yes
+  when: ansible_distribution in ["Ubuntu", "Debian"]
 
 - name: Install sudo
   become: yes
