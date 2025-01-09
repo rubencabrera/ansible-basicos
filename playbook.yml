@@ -1,0 +1,14 @@
+# Burdo playbook, quizás sería mejor tener condicionales y ejecutar distintas
+# configuraciones para distintas máquinas, haciendo hincapié en mi máquina
+# personal, que es la que me interesa más en este rol.
+#
+# Hay que arreglarlo porque ahora falla con el "sudo a password is required" si
+# la sesión no ha usado sudo antes, ¡no nos saca prompt!
+---
+- hosts:
+    # - republic25
+    - localhost
+    - raspa
+  become: yes
+  roles:
+    - ansible-basicos

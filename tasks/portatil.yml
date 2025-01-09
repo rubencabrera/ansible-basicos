@@ -1,0 +1,188 @@
+# Tareas para equipos de desarrollo o donde meto mano a detalles en local.
+---
+- name: repositorio element
+  block:
+    - name: element-io apt key
+      ansible.builtin.get_url:
+        url: https://packages.element.io/debian/element-io-archive-keyring.gpg
+        dest: /usr/share/keyrings/element-io-archive-keyring.gpg
+
+    - name: element-io repo
+      ansible.builtin.apt_repository:
+        filename: element-io
+        repo: "deb [signed-by=/usr/share/keyrings/element-io-archive-keyring.gpg] https://packages.element.io/debian/ default main"
+        state: present
+        update_cache: true
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: repositorio Helm
+  block:
+    - name: element-io apt key
+      ansible.builtin.get_url:
+        url: https://baltocdn.com/helm/signing.asc
+        dest: /usr/share/keyrings/helm.asc
+
+    - name: Helm community repo
+      ansible.builtin.apt_repository:
+        filename: element-io
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.asc] https://baltocdn.com/helm/stable/debian/ all main"
+        state: present
+        update_cache: true
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Instalar paquetes preferidos
+  become: yes
+  package: name={{ item }} state=present
+  with_items:
+    - build-essential
+    # cmake3 aparece en las dependencias de YCM pero no está en mi distro
+    # actual
+    - cmake
+    - element-desktop
+    - helm
+    - htop
+    - git
+    - gnupg
+    - keepass2
+    - kubectx
+    - nfs-common  # para montar la música de disco externo
+    - openssh-server
+    - python3.12-venv
+    - python3-dev
+    - redshift
+    - silversearcher-ag
+    - speedometer
+    - strawberry
+    - tree
+    - terminator
+    - vim-nox
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Install flux cli
+  block:
+    - name: Download release tar
+      ansible.builtin.get_url:
+        decompress: false
+        dest: /home/ruben/bin/flux.tar.gz
+        force: true
+        group: ruben
+        mode: "644"
+        owner: ruben
+        url: https://github.com/fluxcd/flux2/releases/download/v2.4.0/flux_2.4.0_linux_amd64.tar.gz
+    - name: Unarchive flux cli
+      ansible.builtin.unarchive:
+        dest: /home/ruben/bin/
+        group: ruben
+        mode: "755"
+        owner: ruben
+        remote_src: true
+        src: /home/ruben/bin/flux.tar.gz
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Install sops cli
+  ansible.builtin.get_url:
+    dest: /home/ruben/bin/sops
+    force: true
+    group: ruben
+    mode: "744"
+    owner: ruben
+    url: https://github.com/getsops/sops/releases/download/v3.9.3/sops-v3.9.3.linux.amd64
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Config VIM
+  git:
+    repo: "https://github.com/rubencabrera/vim.git"
+    dest: "{{ ansible_env.HOME }}/vim"
+    version: master
+    force: yes
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Vundle for vim
+  git:
+    repo: "https://github.com/gmarik/vundle.git"
+    dest: "{{ ansible_env.HOME }}/vim/.vim/Vundle.vim"
+    version: master
+    force: yes
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Set up vimrc
+  file:
+    src: "{{ ansible_env.HOME }}/vim/.vim/.vimrc"
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    state: link
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Clear .vim default direcotry
+  stat:
+    path: "{{ ansible_env.HOME }}/.vim"
+  register: sym
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Removing .vim default folder
+  file:
+    path: "{{ ansible_env.HOME }}/.vim"
+    state: absent
+  when: |-
+    sym.stat.islnk is defined and not sym.stat.islnk and "personales" in group_names
+
+- name: Set up vim folder
+  file:
+    force: yes
+    src: "{{ ansible_env.HOME }}/vim/.vim"
+    dest: "{{ ansible_env.HOME }}/.vim"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    state: link
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Set vim as default editor
+  community.general.alternatives:
+    name: editor
+    path: /usr/bin/vim
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Allow mount without password for ruben
+  community.general.sudoers:
+    commands:
+      - /usr/bin/mount
+      - /usr/bin/umount
+    host: republic25
+    name: ruben-mount
+    nopassword: true
+    user: ruben
+    validation: detect
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+- name: Generate root key
+  ansible.builtin.user:
+    name: root
+    generate_ssh_key: true
+    group: root
+    shell: /bin/bash
+    ssh_key_bits: 4096
+    ssh_key_comment: "Generada con ansible-basicos"
+    ssh_key_file: .ssh/id_rsa
+    system: true
+  become: true
+  register: user
+  # when: '"personales" in group_names'
+  when: '"personales" in group_names or inventory_hostname == "localhost"'
+
+# Chicken and egg. This needed a manual step, or has to go in the ansibleble
+# - name: Authorize republic root key in raspa
+  # ansible.posix.authorized_key:
+    # key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    # user: pi
+  # # when: 'inventory_hostname == "raspa"'
+  # become: true
+  # when: '"personales" in group_names or inventory_hostname == "localhost"'
