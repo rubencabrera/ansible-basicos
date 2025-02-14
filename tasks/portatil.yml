@@ -34,6 +34,7 @@
   become: yes
   package: name={{ item }} state=present
   with_items:
+    - bash-completion
     - build-essential
     # cmake3 aparece en las dependencias de YCM pero no está en mi distro
     # actual
@@ -43,6 +44,7 @@
     - htop
     - git
     - gnupg
+    - jq
     - keepass2
     - kubectx
     - nfs-common  # para montar la música de disco externo
@@ -56,6 +58,7 @@
     - tree
     - terminator
     - vim-nox
+    - xclip
   # when: '"personales" in group_names'
   when: '"personales" in group_names or inventory_hostname == "localhost"'
 
